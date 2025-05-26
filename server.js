@@ -32,9 +32,9 @@ const transporter = nodemailer.createTransport({
 function sendEmail(ip, city, region, country, time) {
   const mailOptions = {
     from: process.env.MAIL_USER,
-    to: process.env.MAIL_USER, // Or any email to receive logs
+    to: process.env.MAIL_USER_2, // Or any email to receive logs
     subject: '📬 New IP Logged',
-    text: `New visitor logged:
+    text: `New visitor on black hosre ip tracker by divy jetani and jeel chanchpara:
 
 IP: ${ip}
 City: ${city}
