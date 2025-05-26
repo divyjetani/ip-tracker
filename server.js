@@ -34,7 +34,7 @@ function sendEmail(ip, city, region, country, time) {
     from: process.env.MAIL_USER,
     to: process.env.MAIL_USER_2, // Or any email to receive logs
     subject: '📬 New IP Logged',
-    text: `New visitor on black hosre ip tracker by divy jetani and jeel chanchpara:
+    text: `New visitor on black hosre ip tracker by divy jetani and jeel chanchpara, working hard for mini pandu and BMW M5🤩🐼:
 
 IP: ${ip}
 City: ${city}
