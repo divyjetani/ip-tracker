@@ -41,6 +41,11 @@ app.get('/', async (req, res) => {
   }
 });
 
+app.get('/download', (req, res) => {
+  const filePath = path.join(__dirname, 'logs.csv');
+  res.download(filePath, 'user_logs.csv');
+});
+
 app.listen(port, () => {
   console.log(`✅ Server running on port ${port}`);
 });
